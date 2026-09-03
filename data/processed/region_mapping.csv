@@ -1,0 +1,4 @@
+region,ercot_settlement_point,noaa_station_id,noaa_station_name,egrid_subregion
+North Texas,LZ_NORTH,USW00003927,Dallas Fort Worth International Airport,ERCT
+Houston,LZ_HOUSTON,USW00012960,Houston Intercontinental Airport,ERCT
+West Texas,LZ_WEST,USW00023023,Midland International Airport,ERCT
