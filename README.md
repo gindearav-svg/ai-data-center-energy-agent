@@ -124,6 +124,22 @@ python -m scripts.recommend_sites \
   --utilization 0.95 \
   --scenario balanced
 
+### Electricity price-risk metrics
+
+The project analyzes all hourly ERCOT day-ahead prices for each candidate
+load zone rather than relying only on annual averages. The risk analysis
+calculates:
+
+- Price standard deviation
+- 95th-percentile price
+- 99th-percentile price
+- Number of negative-price hours
+- Number of hours above $100/MWh
+- Number of extreme hours above $500/MWh
+
+These statistics measure electricity-price volatility and exposure to
+high-price events. They should not be interpreted as complete measures of
+physical grid reliability or data-center uptime.
 
 
 

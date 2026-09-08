@@ -1,0 +1,4 @@
+region,ercot_settlement_point,price_observations,average_price_usd_per_mwh,price_standard_deviation_usd_per_mwh,p95_price_usd_per_mwh,p99_price_usd_per_mwh,negative_price_hours,high_price_hours_above_100,extreme_price_hours_above_500
+North Texas,LZ_NORTH,8760,33.401,28.9,73.354,120.32,1,177,6
+Houston,LZ_HOUSTON,8760,34.566,25.932,70.52,111.83,2,134,4
+West Texas,LZ_WEST,8760,42.716,34.466,91.421,142.312,220,306,6
