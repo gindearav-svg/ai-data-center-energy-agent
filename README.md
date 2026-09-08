@@ -110,6 +110,20 @@ required before the carbon-focused scenario can meaningfully distinguish the
 three regions.
 
 
+## Running a custom recommendation
+
+The command-line interface accepts user-defined data-center requirements and
+a decision preference scenario.
+
+Example:
+
+```bash
+python -m scripts.recommend_sites \
+  --it-load-mw 200 \
+  --pue 1.25 \
+  --utilization 0.95 \
+  --scenario balanced
+
 
 
 
