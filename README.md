@@ -55,6 +55,20 @@ Houston, and West Texas using:
 - User-provided PUE
 - User-provided average utilization
 
+
+## Current limitations
+
+- Wholesale day-ahead market prices are not the same as the final electricity
+  price paid by a data center. The current results exclude transmission,
+  distribution, demand charges, taxes, hedging, and power purchase agreements.
+- All three candidate regions currently use the same EPA eGRID ERCT emissions
+  factor. Therefore, the baseline model does not yet capture hourly or
+  location-specific differences in grid carbon intensity.
+- The model currently compares broad Texas regions rather than individual
+  parcels, substations, utilities, or transmission interconnection points.
+- Reliability, water availability, cooling demand, and transmission capacity
+  will be added in later development stages.
+
 Run the application:
 
 ```bash
