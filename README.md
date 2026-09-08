@@ -44,6 +44,21 @@ It returns:
 - Annual electricity consumption in MWh
 - Annual electricity consumption in TWh
 
+## Regional comparison
+
+The interactive command-line application compares North Texas,
+Houston, and West Texas using:
+
+- 2025 ERCOT Day-Ahead Market load-zone prices
+- 2023 EPA eGRID ERCT emissions intensity
+- User-provided IT load
+- User-provided PUE
+- User-provided average utilization
+
+Run the application:
+
+```bash
+python main.py
 ## Run the project
 
 To create and activate the virtual environment:
