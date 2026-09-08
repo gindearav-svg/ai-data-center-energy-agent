@@ -56,6 +56,26 @@ def test_score_regions_ranks_best_region_first():
                 700,
                 900,
             ],
+            "price_standard_deviation_usd_per_mwh": [
+                10.0,
+                20.0,
+                30.0,
+            ],
+            "p95_price_usd_per_mwh": [
+                50.0,
+                60.0,
+                70.0,
+            ],
+            "high_price_hours_above_100": [
+                1,
+                2,
+                3,
+            ],
+            "extreme_price_hours_above_500": [
+                0,
+                1,
+                2,
+            ],    
         }
     )
 

@@ -29,6 +29,26 @@ def create_example_data() -> pd.DataFrame:
                 400,
                 1_000,
             ],
+            "price_standard_deviation_usd_per_mwh": [
+                20.0,
+                10.0,
+                30.0,
+            ],
+            "p95_price_usd_per_mwh": [
+                80.0,
+                60.0,
+                100.0,
+            ],
+            "high_price_hours_above_100": [
+                100,
+                50,
+                200,
+            ],
+            "extreme_price_hours_above_500": [
+                5,
+                2,
+                10,
+            ],
         }
     )
 

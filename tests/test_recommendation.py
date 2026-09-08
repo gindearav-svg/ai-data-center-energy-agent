@@ -29,6 +29,22 @@ def create_example_regional_data() -> pd.DataFrame:
                 300.0,
                 400.0,
             ],
+            "price_standard_deviation_usd_per_mwh": [
+                10.0,
+                20.0,
+            ],
+            "p95_price_usd_per_mwh": [
+                50.0,
+                70.0,
+            ],
+            "high_price_hours_above_100": [
+                25,
+                50,
+            ],
+            "extreme_price_hours_above_500": [
+                1,
+                5,
+            ],
         }
     )
 

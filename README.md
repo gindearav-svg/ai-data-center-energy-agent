@@ -143,6 +143,27 @@ physical grid reliability or data-center uptime.
 
 
 
+### Composite price-risk score
+
+Price risk is evaluated using multiple statistics calculated from 8,760
+hourly ERCOT day-ahead prices:
+
+- Price standard deviation: 35%
+- 95th-percentile price: 35%
+- Hours above $100/MWh: 20%
+- Hours above $500/MWh: 10%
+
+Each component is normalized across the candidate regions, where higher
+scores indicate lower price risk. The weighted components produce a
+composite price-risk score from 0 to 100.
+
+Negative-price hours and 99th-percentile prices are retained for analysis,
+but they are not currently included in the composite score. Negative prices
+can represent economic opportunity as well as congestion or market
+imbalance, so they should not automatically be treated as beneficial or
+harmful.
+
+
 
 Run the application:
 
