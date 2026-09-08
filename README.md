@@ -69,6 +69,26 @@ Houston, and West Texas using:
 - Reliability, water availability, cooling demand, and transmission capacity
   will be added in later development stages.
 
+## Initial regional scoring model
+
+The first scoring model ranks candidate regions using three measurable
+components:
+
+- Annual wholesale electricity cost: 70%
+- Annual grid emissions: 20%
+- Maximum observed day-ahead electricity price: 10%
+
+Each metric is normalized to a score from 0 to 100, where a higher score is
+better. The weighted component scores produce the overall regional score.
+
+The maximum electricity price is currently used only as a preliminary indicator
+of exposure to extreme price events. It is not a complete measurement of grid
+reliability.
+
+Because all three regions currently use the same EPA eGRID ERCT emissions
+factor, their carbon scores are equal. More granular carbon data will be added
+in a later version.
+
 Run the application:
 
 ```bash
