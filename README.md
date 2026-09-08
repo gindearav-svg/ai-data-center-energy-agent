@@ -89,6 +89,31 @@ Because all three regions currently use the same EPA eGRID ERCT emissions
 factor, their carbon scores are equal. More granular carbon data will be added
 in a later version.
 
+
+### Preference scenarios
+
+The model supports multiple decision-maker preference profiles:
+
+| Scenario | Cost | Carbon | Price risk |
+|---|---:|---:|---:|
+| Cost-focused | 85% | 5% | 10% |
+| Balanced | 50% | 20% | 30% |
+| Carbon-focused | 30% | 60% | 10% |
+
+Each scenario independently recalculates the overall scores and regional
+rankings. This allows the analysis to show whether a recommendation is robust
+or sensitive to the user's priorities.
+
+The current carbon-focused results are limited because all candidate regions
+use the same annual EPA eGRID emissions factor. More granular carbon data is
+required before the carbon-focused scenario can meaningfully distinguish the
+three regions.
+
+
+
+
+
+
 Run the application:
 
 ```bash
