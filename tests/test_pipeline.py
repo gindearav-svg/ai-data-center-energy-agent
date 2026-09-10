@@ -8,10 +8,10 @@ from src.energy_agent.pipeline import (
 )
 
 
-def test_pipeline_contains_seven_steps():
+def test_pipeline_contains_eight_steps():
     commands = build_pipeline_commands()
 
-    assert len(commands) == 7
+    assert len(commands) == 8
 
 
 def test_pipeline_steps_are_in_correct_order():
@@ -23,6 +23,7 @@ def test_pipeline_steps_are_in_correct_order():
         "Calculate hourly price-risk metrics",
         "Enrich regional metrics",
         "Validate regional data",
+        "Build SQLite database",
         "Calculate baseline results",
         "Score candidate regions",
         "Compare preference scenarios",
@@ -61,8 +62,8 @@ def test_pipeline_executes_every_command():
         runner=fake_runner,
     )
 
-    assert len(executed_commands) == 7
-    assert len(results) == 7
+    assert len(executed_commands) == 8
+    assert len(results) == 8
     assert all(
         result["status"] == "passed"
         for result in results

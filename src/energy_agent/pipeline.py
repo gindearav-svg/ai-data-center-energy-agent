@@ -36,6 +36,14 @@ def build_pipeline_commands(
             ],
         ),
         (
+            "Build SQLite database",
+            [
+                sys.executable,
+                "-m",
+                "scripts.build_database",
+            ],
+        ),
+        (
             "Calculate baseline results",
             [
                 sys.executable,

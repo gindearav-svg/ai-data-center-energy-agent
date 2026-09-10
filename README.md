@@ -217,6 +217,23 @@ python -m scripts.query_database --list-regions
 python -m scripts.query_database --region "Houston"
 python -m scripts.query_database --compare-all
 
+## AI-ready deterministic tools
+
+The application exposes tested, JSON-compatible Python functions for:
+
+- Listing supported regions
+- Retrieving electricity-price metrics
+- Retrieving a complete regional energy profile
+- Estimating facility power and annual energy requirements
+- Comparing and ranking regional energy options
+
+These tools use validated calculations and parameterized SQL queries. They
+will serve as the controlled interface between the future LLM agent and the
+underlying data.
+
+The LLM will be responsible for selecting tools and explaining results, while
+the deterministic Python and SQL layers remain responsible for numerical
+calculations and factual data retrieval.
 
 ### Run the application:
 

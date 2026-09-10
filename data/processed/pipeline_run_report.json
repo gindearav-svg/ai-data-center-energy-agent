@@ -18,6 +18,10 @@
       "status": "passed"
     },
     {
+      "step": "Build SQLite database",
+      "status": "passed"
+    },
+    {
       "step": "Calculate baseline results",
       "status": "passed"
     },
