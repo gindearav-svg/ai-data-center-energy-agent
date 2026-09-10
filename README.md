@@ -264,6 +264,17 @@ This provides a consistent interface for the future web application and LLM
 workflow while preventing undocumented or malformed response structures from
 silently reaching API consumers.
 
+## Local LLM integration
+
+The application includes a provider-configurable LLM client built with
+the OpenAI-compatible Python interface.
+
+Local development uses Ollama with the `qwen3:4b` model:
+
+```bash
+ollama pull qwen3:4b
+python -m scripts.demo_llm
+
 ### Run the application:
 
 ```bash
