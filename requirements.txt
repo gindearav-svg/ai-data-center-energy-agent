@@ -1,3 +1,7 @@
 pandas
 openpyxl
 pytest
+
+fastapi
+uvicorn
+httpx

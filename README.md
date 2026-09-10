@@ -235,6 +235,24 @@ The LLM will be responsible for selecting tools and explaining results, while
 the deterministic Python and SQL layers remain responsible for numerical
 calculations and factual data retrieval.
 
+## FastAPI backend
+
+The project exposes its validated SQL-backed analytical tools through a
+FastAPI service.
+
+Available endpoints:
+
+- `GET /health`
+- `GET /regions`
+- `GET /regions/{region}`
+- `GET /regions/{region}/price`
+- `POST /recommendations`
+
+Start the local API:
+
+```bash
+python -m uvicorn src.energy_agent.api:app --reload
+
 ### Run the application:
 
 ```bash
