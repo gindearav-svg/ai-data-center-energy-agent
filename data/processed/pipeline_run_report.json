@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "it_load_mw": 200.0,
+  "pue": 1.25,
+  "utilization": 0.95,
+  "scenario": "balanced",
+  "completed_steps": [
+    {
+      "step": "Calculate hourly price-risk metrics",
+      "status": "passed"
+    },
+    {
+      "step": "Enrich regional metrics",
+      "status": "passed"
+    },
+    {
+      "step": "Validate regional data",
+      "status": "passed"
+    },
+    {
+      "step": "Calculate baseline results",
+      "status": "passed"
+    },
+    {
+      "step": "Score candidate regions",
+      "status": "passed"
+    },
+    {
+      "step": "Compare preference scenarios",
+      "status": "passed"
+    },
+    {
+      "step": "Generate custom recommendation",
+      "status": "passed"
+    }
+  ]
+}

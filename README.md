@@ -178,7 +178,14 @@ verify:
 The validation process produces a machine-readable JSON quality report.
 Invalid data raises an error before it can affect downstream recommendations.
 
-Run the application:
+## Running the complete pipeline
+
+The full analytical workflow can be regenerated with one command:
+
+```bash
+python -m scripts.run_full_pipeline
+
+### Run the application:
 
 ```bash
 python main.py
@@ -189,3 +196,4 @@ To create and activate the virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+###
