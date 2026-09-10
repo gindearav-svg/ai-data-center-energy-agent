@@ -202,6 +202,21 @@ indexes, and idempotent upserts. The database can be rebuilt with:
 ```bash
 python -m scripts.build_database
 
+## SQL data-access layer
+
+The application includes reusable, parameterized SQL query functions for:
+
+- Listing available regions
+- Retrieving the latest metrics for one region
+- Comparing current metrics across all regions
+
+Example commands:
+
+```bash
+python -m scripts.query_database --list-regions
+python -m scripts.query_database --region "Houston"
+python -m scripts.query_database --compare-all
+
 
 ### Run the application:
 
