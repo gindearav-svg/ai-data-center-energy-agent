@@ -163,7 +163,20 @@ can represent economic opportunity as well as congestion or market
 imbalance, so they should not automatically be treated as beneficial or
 harmful.
 
+### Automated data-quality validation
 
+Before regional data is used by the recommendation model, automated checks
+verify:
+
+- Required columns and values are present
+- Region and settlement-point identifiers are unique
+- Each region contains exactly 8,760 hourly price observations
+- Price percentiles are logically ordered
+- Volatility and emissions values are nonnegative
+- Price-event counts do not exceed total observations
+
+The validation process produces a machine-readable JSON quality report.
+Invalid data raises an error before it can affect downstream recommendations.
 
 Run the application:
 

@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "regional_rows": 3,
+  "regions": [
+    "Houston",
+    "North Texas",
+    "West Texas"
+  ],
+  "total_price_observations": 26280,
+  "missing_required_values": 0,
+  "price_years": [
+    2025
+  ],
+  "emissions_years": [
+    2023
+  ]
+}
