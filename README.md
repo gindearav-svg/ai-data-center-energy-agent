@@ -185,6 +185,24 @@ The full analytical workflow can be regenerated with one command:
 ```bash
 python -m scripts.run_full_pipeline
 
+## SQL database
+
+Processed regional information is stored in a normalized SQLite database.
+
+The database currently contains:
+
+- `regions`: regional identifiers, ERCOT load zones, eGRID subregions,
+  and NOAA station mappings
+- `regional_metrics`: yearly electricity-price, emissions, and
+  price-risk measurements
+
+The schema uses primary keys, foreign keys, uniqueness constraints,
+indexes, and idempotent upserts. The database can be rebuilt with:
+
+```bash
+python -m scripts.build_database
+
+
 ### Run the application:
 
 ```bash
