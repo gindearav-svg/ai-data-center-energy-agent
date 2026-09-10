@@ -253,6 +253,17 @@ Start the local API:
 ```bash
 python -m uvicorn src.energy_agent.api:app --reload
 
+### Typed API contracts
+
+The API uses Pydantic request and response models to define explicit data
+contracts. FastAPI uses these models to validate responses and generate an
+OpenAPI specification with documented fields, types, examples, and expected
+error codes.
+
+This provides a consistent interface for the future web application and LLM
+workflow while preventing undocumented or malformed response structures from
+silently reaching API consumers.
+
 ### Run the application:
 
 ```bash

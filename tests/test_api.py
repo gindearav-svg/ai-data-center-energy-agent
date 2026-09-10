@@ -43,7 +43,7 @@ def test_root_endpoint(client):
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.json()["version"] == "0.1.0"
+    assert response.json()["version"] == "0.2.0"
 
 
 def test_health_endpoint(client):

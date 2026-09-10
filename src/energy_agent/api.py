@@ -1,9 +1,16 @@
 from pathlib import Path
-from typing import Literal
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
 
+from src.energy_agent.schemas import (
+    ElectricityPriceResponse,
+    HealthResponse,
+    RecommendationRequest,
+    RecommendationResponse,
+    RegionEnergyProfileResponse,
+    RegionsResponse,
+    RootResponse,
+)
 from src.energy_agent.tools import (
     compare_energy_options,
     get_available_regions,
@@ -28,51 +35,44 @@ app = FastAPI(
         "Compare Texas regions for AI data-center "
         "energy requirements."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
 
 
-class RecommendationRequest(BaseModel):
-    it_load_mw: float = Field(
-        gt=0,
-        description="IT equipment load in megawatts.",
-    )
-
-    pue: float = Field(
-        ge=1,
-        description="Power Usage Effectiveness.",
-    )
-
-    utilization: float = Field(
-        gt=0,
-        le=1,
-        description="Average utilization expressed as a decimal.",
-    )
-
-    scenario: Literal[
-        "cost_focused",
-        "balanced",
-        "carbon_focused",
-    ] = "balanced"
-
-
-@app.get("/")
+@app.get(
+    "/",
+    response_model=RootResponse,
+    summary="API information",
+)
 def root() -> dict:
     return {
         "name": "AI Data Center Energy Intelligence API",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "documentation": "/docs",
     }
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Check API health",
+)
 def health_check() -> dict:
     return {
         "status": "healthy",
     }
 
 
-@app.get("/regions")
+@app.get(
+    "/regions",
+    response_model=RegionsResponse,
+    summary="List supported regions",
+    responses={
+        503: {
+            "description": "Energy database is unavailable.",
+        },
+    },
+)
 def read_available_regions() -> dict:
     try:
         return get_available_regions(
@@ -85,7 +85,19 @@ def read_available_regions() -> dict:
         ) from error
 
 
-@app.get("/regions/{region}/price")
+@app.get(
+    "/regions/{region}/price",
+    response_model=ElectricityPriceResponse,
+    summary="Get regional electricity prices",
+    responses={
+        404: {
+            "description": "Region was not found.",
+        },
+        503: {
+            "description": "Energy database is unavailable.",
+        },
+    },
+)
 def read_electricity_price(region: str) -> dict:
     try:
         return get_electricity_price(
@@ -104,7 +116,19 @@ def read_electricity_price(region: str) -> dict:
         ) from error
 
 
-@app.get("/regions/{region}")
+@app.get(
+    "/regions/{region}",
+    response_model=RegionEnergyProfileResponse,
+    summary="Get a regional energy profile",
+    responses={
+        404: {
+            "description": "Region was not found.",
+        },
+        503: {
+            "description": "Energy database is unavailable.",
+        },
+    },
+)
 def read_region_profile(region: str) -> dict:
     try:
         return get_region_energy_profile(
@@ -123,7 +147,19 @@ def read_region_profile(region: str) -> dict:
         ) from error
 
 
-@app.post("/recommendations")
+@app.post(
+    "/recommendations",
+    response_model=RecommendationResponse,
+    summary="Create a regional recommendation",
+    responses={
+        400: {
+            "description": "The analysis request is invalid.",
+        },
+        503: {
+            "description": "Energy database is unavailable.",
+        },
+    },
+)
 def create_recommendation(
     request: RecommendationRequest,
 ) -> dict:
