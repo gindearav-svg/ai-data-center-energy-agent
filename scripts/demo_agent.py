@@ -1,8 +1,8 @@
 import json
 
-from src.energy_agent.agent import (
-    AgentError,
-    run_energy_agent,
+from src.energy_agent.agent import AgentError
+from src.energy_agent.service import (
+    run_grounded_comparison_agent,
 )
 
 
@@ -23,7 +23,7 @@ def main() -> None:
     print(f"\nUser request:\n{request}")
 
     try:
-        result = run_energy_agent(request)
+        result = run_grounded_comparison_agent(request)
     except AgentError as exc:
         print(f"\nAgent error:\n{exc}")
         raise SystemExit(1) from exc
@@ -56,6 +56,15 @@ def main() -> None:
                     indent=2,
                 )
             )
+    
+
+    print("\nGrounding validation:")
+    print("---------------------")
+    print(f"Grounded: {result['grounded']}")
+    print(f"Answer source: {result['answer_source']}")
+
+    for check_name, passed in result["grounding_checks"].items():
+        print(f"- {check_name}: {passed}")
 
     print("\nFinal answer:")
     print("-------------")

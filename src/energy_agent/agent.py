@@ -50,6 +50,10 @@ Rules:
 16. Before returning a recommendation, verify that every statement about
     cheapest cost, price stability, and score direction agrees with the
     numerical tool results.
+17. Report normalized scores as points out of 100, not percentages.
+18. A price_risk_score of 100 means the best relative price
+    stability among the compared regions. It does not mean that
+    the region has zero or minimal absolute electricity-price volatility.
 """.strip()
 
 
@@ -398,6 +402,13 @@ def prepare_tool_result_for_model(
                 "same coarse ERCT eGRID emissions factor. They do not "
                 "prove that every location has an identical local "
                 "generation mix."
+            ),
+            "score_units": (
+                "Normalized scores are points out of 100, not percentages."
+            ),
+            "relative_score_scope": (
+                "A score of 100 identifies the best region within this "
+                "comparison. It does not imply zero absolute risk."
             ),
         },
     }
