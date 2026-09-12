@@ -7,7 +7,7 @@ from openai import OpenAI
 
 DEFAULT_BASE_URL = "http://localhost:11434/v1"
 DEFAULT_API_KEY = "ollama"
-DEFAULT_MODEL = "qwen3:4b"
+DEFAULT_MODEL = "qwen3:8b"
 
 SYSTEM_PROMPT = """
 You are an AI data-center energy analysis assistant.

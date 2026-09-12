@@ -56,7 +56,7 @@ def test_default_settings_use_local_ollama():
 
     assert settings.base_url == "http://localhost:11434/v1"
     assert settings.api_key == "ollama"
-    assert settings.model == "qwen3:4b"
+    assert settings.model == "qwen3:8b"
 
 
 def test_environment_variables_override_defaults(monkeypatch):
@@ -105,7 +105,7 @@ def test_generate_llm_response_sends_system_and_user_messages():
 
     request = client.completions.request
 
-    assert request["model"] == "qwen3:4b"
+    assert request["model"] == "qwen3:8b"
     assert request["messages"][0]["role"] == "system"
     assert request["messages"][1] == {
         "role": "user",
