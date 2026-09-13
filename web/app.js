@@ -86,10 +86,12 @@ setText(
   } / 100. ${tradeoff} These stability scores compare the listed regions; they do not measure absolute volatility.`
 );
 
-setText("#raw-answer", data.answer);
-  setText(
+setText("#raw-answer", data.model_draft);
+
+setText(
   "#answer-source",
-  `Decision figures come from analysis tools. Agent answer source: ${data.answer_source}. Core numerical checks passed: ${data.grounded}.`
+  "Decision figures and rationale are assembled from analysis tools. " +
+    "The expandable model draft has not been fully verified."
 );
 
   const limitations = document.querySelector("#limitations");

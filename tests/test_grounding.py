@@ -4,7 +4,7 @@ from src.energy_agent.grounding import (
     build_grounded_summary,
     validate_llm_answer,
 )
-
+from src.energy_agent import service as service_module
 
 def make_tool_trace():
     return [
@@ -158,3 +158,40 @@ def test_deterministic_answer_uses_tool_values():
     assert "$71,914,563" in answer
     assert "695,155 metric tons" in answer
     assert "$2,423,782 cheaper" in answer
+
+def test_service_does_not_publish_contradictory_model_draft(
+    monkeypatch,
+):
+    model_draft = (
+        "Houston is recommended. Annual electricity use is "
+        "2,080,500 MWh, cost is $71.9 million, and emissions "
+        "are 695,155 metric tons CO2e. "
+        "North Texas is more expensive than Houston."
+    )
+
+    def fake_agent(**kwargs):
+        return {
+            "answer": model_draft,
+            "tool_trace": make_tool_trace(),
+        }
+
+    monkeypatch.setattr(
+        service_module,
+        "run_energy_agent",
+        fake_agent,
+    )
+
+    result = service_module.run_grounded_comparison_agent(
+        "Compare Texas regions."
+    )
+
+    # The old four checks all pass despite the false cost claim.
+    assert all(result["grounding_checks"].values())
+
+    # The returned answer is instead built from trusted tool data.
+    assert result["answer_source"] == "tool_summary"
+    assert result["grounded"] is True
+    assert "North Texas" in result["answer"]
+    assert "cheaper" in result["answer"]
+    assert "more expensive than Houston" not in result["answer"]
+    assert result["model_draft"] == model_draft

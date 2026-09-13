@@ -275,17 +275,20 @@ Local development uses Ollama with the `qwen3:4b` model:
 ollama pull qwen3:4b
 python -m scripts.demo_llm
 
-## Grounded agent API
+## Grounded agent responses
 
-The existing FastAPI backend exposes the natural-language energy agent at
-`POST /agent/query`. It runs approved analysis tools, checks the answer's
-core figures against tool results, and returns a deterministic explanation
-if those checks fail.
+The agent uses an LLM to interpret a natural-language request and select
+approved energy-analysis tools. For regional comparisons, the public `answer`
+is assembled from structured tool results rather than the model's prose.
 
-The response includes the answer, its source (`llm` or
-`deterministic_fallback`), grounding checks, a structured regional summary,
-and the tool-call trace. The existing `POST /recommendations` endpoint
-remains available for deterministic analysis without an LLM.
+`answer_source: "tool_summary"` identifies that published answer.
+`grounded: true` describes the published, tool-built answer. The separate
+`model_draft` contains the LLM's original wording for inspection; it is not
+fully verified. `grounding_checks` report four basic presence checks on that
+draft and do not certify every claim it makes.
+
+The browser interface displays a decision rationale from structured results
+and labels the original model wording as unverified.
 
 Run the API locally:
 

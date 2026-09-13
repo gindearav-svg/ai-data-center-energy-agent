@@ -137,9 +137,11 @@ class AgentQueryRequest(BaseModel):
 
 class AgentQueryResponse(BaseModel):
     answer: str
+    model_draft: str
     answer_source: Literal[
         "llm",
         "deterministic_fallback",
+        "tool_summary",
     ]
     grounded: bool
     grounding_checks: dict[str, bool]

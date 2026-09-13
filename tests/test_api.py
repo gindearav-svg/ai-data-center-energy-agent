@@ -163,6 +163,7 @@ def test_agent_query_endpoint(client, monkeypatch):
                     "result": {},
                 }
             ],
+            "model_draft": "Houston is recommended for the balanced scenario.",
         }
 
     monkeypatch.setattr(

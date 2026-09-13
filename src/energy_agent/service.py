@@ -15,10 +15,11 @@ def run_grounded_comparison_agent(
     settings: LLMSettings | None = None,
 ) -> dict[str, Any]:
     """
-    Run the agent and verify its final answer against tool data.
+    Use the agent to select tools, then build the public answer from
+    authoritative tool results.
 
-    If validation fails, replace the LLM answer with a deterministic
-    explanation assembled from authoritative tool results.
+    The model's original wording is retained for inspection, but
+    presence checks alone do not certify all of its claims.
     """
 
     agent_result = run_energy_agent(
@@ -31,25 +32,18 @@ def run_grounded_comparison_agent(
         agent_result["tool_trace"]
     )
 
-    checks = validate_llm_answer(
-        agent_result["answer"],
+    model_draft = agent_result["answer"]
+    draft_checks = validate_llm_answer(
+        model_draft,
         summary,
     )
 
-    grounded = all(checks.values())
-
-    if grounded:
-        final_answer = agent_result["answer"]
-        answer_source = "llm"
-    else:
-        final_answer = build_deterministic_answer(summary)
-        answer_source = "deterministic_fallback"
-
     return {
         **agent_result,
-        "answer": final_answer,
-        "answer_source": answer_source,
-        "grounded": grounded,
-        "grounding_checks": checks,
+        "answer": build_deterministic_answer(summary),
+        "model_draft": model_draft,
+        "answer_source": "tool_summary",
+        "grounded": True,
+        "grounding_checks": draft_checks,
         "grounded_summary": summary,
     }
