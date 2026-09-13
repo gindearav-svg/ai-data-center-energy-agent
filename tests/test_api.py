@@ -247,3 +247,15 @@ def test_agent_failure_returns_503(
     assert response.json()["detail"] == (
         "The language model is unavailable."
     )
+def test_browser_app_is_served(client):
+    response = client.get("/app")
+
+    assert response.status_code == 200
+    assert "AI Data Center Energy Intelligence" in response.text
+
+
+def test_browser_javascript_is_served(client):
+    response = client.get("/static/app.js")
+
+    assert response.status_code == 200
+    assert 'fetch("/agent/query"' in response.text

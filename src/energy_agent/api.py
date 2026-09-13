@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 
 from src.energy_agent.schemas import (
@@ -45,6 +47,18 @@ app = FastAPI(
     ),
     version="0.3.0",
 )
+WEB_DIR = PROJECT_ROOT / "web"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=WEB_DIR),
+    name="static",
+)
+
+
+@app.get("/app", include_in_schema=False)
+def browser_app() -> FileResponse:
+    return FileResponse(WEB_DIR / "index.html")
 
 
 @app.get(
