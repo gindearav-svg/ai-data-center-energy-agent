@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -119,3 +119,29 @@ class RecommendationResponse(BaseModel):
     weights: WeightsResponse
     recommendation: RecommendationSummaryResponse
     regional_results: list[RegionalRecommendationResult]
+
+
+class AgentQueryRequest(BaseModel):
+    message: str = Field(
+        min_length=1,
+        max_length=4000,
+        description="Natural-language data-center comparison request.",
+        examples=[
+            (
+                "Compare Texas regions for a 200 MW IT load, "
+                "1.25 PUE, and 95% utilization."
+            )
+        ],
+    )
+
+
+class AgentQueryResponse(BaseModel):
+    answer: str
+    answer_source: Literal[
+        "llm",
+        "deterministic_fallback",
+    ]
+    grounded: bool
+    grounding_checks: dict[str, bool]
+    grounded_summary: dict[str, Any]
+    tool_trace: list[dict[str, Any]]

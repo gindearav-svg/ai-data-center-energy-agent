@@ -17,6 +17,8 @@ def test_openapi_contains_response_schemas():
     assert "RecommendationResponse" in schemas
     assert "ElectricityPriceResponse" in schemas
     assert "RegionEnergyProfileResponse" in schemas
+    assert "AgentQueryRequest" in schemas
+    assert "AgentQueryResponse" in schemas
 
 
 def test_recommendation_has_specific_response_model():
@@ -68,3 +70,16 @@ def test_database_unavailable_response_is_documented():
     ]["post"]["responses"]
 
     assert "503" in responses
+
+def test_agent_query_has_specific_response_model():
+    specification = client.get("/openapi.json").json()
+
+    response_schema = specification["paths"][
+        "/agent/query"
+    ]["post"]["responses"]["200"]["content"][
+        "application/json"
+    ]["schema"]
+
+    assert response_schema["$ref"].endswith(
+        "/AgentQueryResponse"
+    )

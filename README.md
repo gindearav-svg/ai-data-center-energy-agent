@@ -275,6 +275,23 @@ Local development uses Ollama with the `qwen3:4b` model:
 ollama pull qwen3:4b
 python -m scripts.demo_llm
 
+## Grounded agent API
+
+The existing FastAPI backend exposes the natural-language energy agent at
+`POST /agent/query`. It runs approved analysis tools, checks the answer's
+core figures against tool results, and returns a deterministic explanation
+if those checks fail.
+
+The response includes the answer, its source (`llm` or
+`deterministic_fallback`), grounding checks, a structured regional summary,
+and the tool-call trace. The existing `POST /recommendations` endpoint
+remains available for deterministic analysis without an LLM.
+
+Run the API locally:
+
+```bash
+python -m uvicorn src.energy_agent.api:app --reload
+
 ### Run the application:
 
 ```bash

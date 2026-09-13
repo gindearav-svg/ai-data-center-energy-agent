@@ -2,7 +2,10 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
+
 from src.energy_agent.schemas import (
+    AgentQueryRequest,
+    AgentQueryResponse,
     ElectricityPriceResponse,
     HealthResponse,
     RecommendationRequest,
@@ -16,6 +19,11 @@ from src.energy_agent.tools import (
     get_available_regions,
     get_electricity_price,
     get_region_energy_profile,
+)
+from src.energy_agent.agent import AgentError
+from src.energy_agent.grounding import GroundingError
+from src.energy_agent.service import (
+    run_grounded_comparison_agent,
 )
 
 
@@ -35,7 +43,7 @@ app = FastAPI(
         "Compare Texas regions for AI data-center "
         "energy requirements."
     ),
-    version="0.2.0",
+    version="0.3.0",
 )
 
 
@@ -47,7 +55,7 @@ app = FastAPI(
 def root() -> dict:
     return {
         "name": "AI Data Center Energy Intelligence API",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "documentation": "/docs",
     }
 
@@ -177,6 +185,46 @@ def create_recommendation(
             detail=str(error),
         ) from error
     except FileNotFoundError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+    
+@app.post(
+    "/agent/query",
+    response_model=AgentQueryResponse,
+    summary="Run a grounded natural-language energy analysis",
+    responses={
+        400: {
+            "description": "The agent request is invalid.",
+        },
+        503: {
+            "description": (
+                "The language model, grounding layer, "
+                "or energy data is unavailable."
+            ),
+        },
+    },
+)
+def query_energy_agent(
+    request: AgentQueryRequest,
+) -> dict:
+    if not request.message.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="Message cannot be blank.",
+        )
+
+    try:
+        return run_grounded_comparison_agent(
+            request.message
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+    except (AgentError, GroundingError) as error:
         raise HTTPException(
             status_code=503,
             detail=str(error),

@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from src.energy_agent import api as api_module
 from src.energy_agent.database import initialize_database
-
+from src.energy_agent.agent import AgentError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = PROJECT_ROOT / "database" / "schema.sql"
@@ -43,7 +43,7 @@ def test_root_endpoint(client):
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.json()["version"] == "0.2.0"
+    assert response.json()["version"] == "0.3.0"
 
 
 def test_health_endpoint(client):
@@ -129,3 +129,121 @@ def test_invalid_scenario_returns_422(client):
     )
 
     assert response.status_code == 422
+
+def test_agent_query_endpoint(client, monkeypatch):
+    def fake_grounded_agent(message):
+        assert "200 MW" in message
+
+        return {
+            "answer": (
+                "Houston is recommended for the balanced scenario."
+            ),
+            "answer_source": "llm",
+            "grounded": True,
+            "grounding_checks": {
+                "recommended_region_present": True,
+                "annual_energy_present": True,
+                "recommended_cost_present": True,
+                "emissions_present": True,
+            },
+            "grounded_summary": {
+                "recommended_region": "Houston",
+                "annual_energy_mwh": 2080500.0,
+            },
+            "tool_trace": [
+                {
+                    "tool": "compare_energy_options",
+                    "arguments": {
+                        "it_load_mw": 200,
+                        "pue": 1.25,
+                        "utilization": 0.95,
+                        "scenario": "balanced",
+                    },
+                    "status": "passed",
+                    "result": {},
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        api_module,
+        "run_grounded_comparison_agent",
+        fake_grounded_agent,
+    )
+
+    response = client.post(
+        "/agent/query",
+        json={
+            "message": (
+                "Compare Texas regions for a 200 MW "
+                "AI data center."
+            )
+        },
+    )
+
+    assert response.status_code == 200
+
+    result = response.json()
+
+    assert result["grounded"] is True
+    assert result["answer_source"] == "llm"
+    assert result["grounded_summary"][
+        "recommended_region"
+    ] == "Houston"
+    assert result["tool_trace"][0]["status"] == "passed"
+
+
+def test_blank_agent_query_returns_422(
+    client,
+    monkeypatch,
+):
+    def agent_should_not_run(message):
+        raise AssertionError(
+            "Agent should not run for a blank message."
+        )
+
+    monkeypatch.setattr(
+        api_module,
+        "run_grounded_comparison_agent",
+        agent_should_not_run,
+    )
+
+    response = client.post(
+        "/agent/query",
+        json={
+            "message": "   ",
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == (
+        "Message cannot be blank."
+    )
+
+
+def test_agent_failure_returns_503(
+    client,
+    monkeypatch,
+):
+    def unavailable_agent(message):
+        raise AgentError(
+            "The language model is unavailable."
+        )
+
+    monkeypatch.setattr(
+        api_module,
+        "run_grounded_comparison_agent",
+        unavailable_agent,
+    )
+
+    response = client.post(
+        "/agent/query",
+        json={
+            "message": "Compare the available regions.",
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "The language model is unavailable."
+    )
