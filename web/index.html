@@ -23,11 +23,77 @@
         <form id="query-form">
           <label for="message">Analysis request</label>
           <textarea id="message" name="message" rows="5" required>I need a data center with a 200 MW IT load, a PUE of 1.25, and 95% utilization. Use the balanced scenario to compare all available Texas regions and recommend the best option. Include annual electricity use, estimated wholesale cost, emissions, and the main tradeoff.</textarea>
-          <button id="submit-button" type="submit">Compare regions</button>
+          <button id="submit-button" type="submit">Compare regions with AI</button>
         </form>
         <p id="status" role="status" aria-live="polite"></p>
       </section>
 
+      <!-- Independent form: visible before either comparison runs. -->
+      <section class="panel" aria-labelledby="scenario-heading">
+        <h2 id="scenario-heading">Explore decision scenarios</h2>
+        <p>
+          Compare regions immediately using the analytical model.
+          This option does not require the local AI model.
+        </p>
+
+        <form id="scenario-form">
+          <div class="scenario-fields">
+            <div>
+              <label for="scenario-it-load">IT load (MW)</label>
+              <input id="scenario-it-load" type="number" min="0.000001"
+                     step="any" value="200" required />
+            </div>
+            <div>
+              <label for="scenario-pue">PUE</label>
+              <input id="scenario-pue" type="number" min="1"
+                     step="any" value="1.25" required />
+            </div>
+            <div>
+              <label for="scenario-utilization">Utilization (0–1)</label>
+              <input id="scenario-utilization" type="number" min="0.000001"
+                     max="1" step="any" value="0.95" required />
+            </div>
+            <div>
+              <label for="scenario-choice">Decision priority</label>
+              <select id="scenario-choice">
+                <option value="cost_focused">Cost-focused</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="carbon_focused">Carbon-focused</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="scenario-button" type="submit">Compare scenarios</button>
+        </form>
+
+        <p id="scenario-status" role="status" aria-live="polite"></p>
+
+        <div id="scenario-results" hidden>
+          <h3 id="scenario-winner"></h3>
+          <p id="scenario-weights"></p>
+          <p id="scenario-summary"></p>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Region</th>
+                  <th scope="col">Annual wholesale cost</th>
+                  <th scope="col">Annual emissions</th>
+                  <th scope="col">Relative price-stability score</th>
+                  <th scope="col">Overall score</th>
+                </tr>
+              </thead>
+              <tbody id="scenario-rows"></tbody>
+            </table>
+          </div>
+
+          <p id="scenario-limitation" class="small"></p>
+        </div>
+      </section>
+
+      <!-- The original AI result remains hidden until its form is submitted. -->
       <section id="results" class="panel" aria-labelledby="results-heading" hidden>
         <h2 id="results-heading">Recommendation</h2>
 
@@ -61,8 +127,8 @@
         <p id="answer-source" class="small"></p>
 
         <details>
-            <summary>View unverified agent wording</summary>
-            <pre id="raw-answer"></pre>
+          <summary>View unverified agent wording</summary>
+          <pre id="raw-answer"></pre>
         </details>
 
         <h3>Data limitations</h3>
