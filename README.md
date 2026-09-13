@@ -149,6 +149,26 @@ The separate `model_draft` field contains the LLM's original wording for inspect
 
 The browser interface displays decision figures and rationale from structured results. It labels the original model wording as unverified.
 
+### What changes across scenarios?
+
+| Scenario | Top-ranked region | Overall score | Second-ranked region |
+| --- | --- | ---: | --- |
+| Cost-focused | North Texas | 94.31 | Houston (86.87) |
+| Balanced | Houston | 83.75 | North Texas (80.42) |
+| Carbon-focused | North Texas | 66.81 | Houston (66.25) |
+
+The recommendation is sensitive to stakeholder priorities: North Texas ranks
+first when cost receives more weight, while Houston ranks first under the
+balanced weights because of its stronger relative price-stability score.
+
+The carbon-focused result does **not** identify a lower-emissions region.
+All three regions have the same carbon score because they share the current
+coarse eGRID emissions factor. North Texas's narrow lead in that scenario
+comes from the other scoring components. A higher price-stability score is
+relative to these candidates; it does not mean a region has zero volatility.
+Overall scores should be compared **within**, not across, scenarios with
+different weights.
+
 ## Other command-line workflows
 
 Run a custom recommendation:
