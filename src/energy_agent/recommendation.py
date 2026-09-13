@@ -10,7 +10,6 @@ from src.energy_agent.scoring import score_regions
 REQUIRED_REGIONAL_COLUMNS = {
     "region",
     "annual_average_dam_price_usd_per_mwh",
-    "maximum_dam_price_usd_per_mwh",
     "grid_emissions_kg_co2e_per_mwh",
 }
 

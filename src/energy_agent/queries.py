@@ -67,7 +67,7 @@ def get_region_metrics(
             FROM regions AS r
             JOIN regional_metrics AS m
                 ON r.region_id = m.region_id
-            WHERE r.region_name = ?
+            WHERE r.region_name = ? COLLATE NOCASE
             ORDER BY
                 m.price_year DESC,
                 m.emissions_year DESC

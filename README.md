@@ -1,121 +1,157 @@
-# AI Data Center Energy Info Agent
+# AI Data Center Energy Intelligence Agent
 
-A decision-support application for evaluating where and how to power
-AI data centers.
+A Texas-focused decision-support application for comparing the estimated energy cost, emissions, and electricity-price risk of AI data-center locations.
 
-## Project objective
+Users can submit a natural-language request through a browser interface or call the FastAPI endpoints directly. Deterministic Python and SQL tools produce the numerical results; an LLM can select tools, but its unverified wording is kept separate from the published recommendation.
 
-The application will compare various data-center regions and power
-strategies based on -- 
+## Current scope
 
-- Electricity cost
-- Regional grid reliability/availability
-- Carbon intensity
-- Cooling conditions
-- Scalability
+The application compares three broad Texas regions: Houston, North Texas, and West Texas. Given an IT load, Power Usage Effectiveness (PUE), utilization, and preference scenario, it:
 
-The final system will combine structured energy data, deterministic
-Python calculations, SQL, document retrieval, LLM tool calling, and
-a transparent site-scoring model.
+1. Calculates facility load and annual electricity consumption.
+2. Estimates annual wholesale electricity cost and operational emissions.
+3. Compares relative electricity-price risk.
+4. Ranks the regions using a weighted scoring model.
+5. Presents the results through an API and browser interface.
 
-## Initial scope        
+This is a regional screening tool, not a parcel-level site-selection or engineering-feasibility study.
 
-Version 1 will focus on Texas and the ERCOT electricity market.
+## Data and limitations
 
-The first version will:
+The analysis uses:
 
-1. Estimate facility power from IT load and PUE.
-2. Estimate annual electricity consumption.
-3. Compare three candidate Texas regions.
-4. Estimate annual electricity cost and operational emissions.
-5. Rank regions using a transparent scoring model.
+- 2025 ERCOT Day-Ahead Market load-zone electricity prices.
+- A 2023 EPA eGRID ERCT emissions factor.
+- User-provided IT load, PUE, and utilization.
 
-## Current functionality
+The estimated electricity cost is a **wholesale energy-cost estimate**, not a data center's final electricity bill. It excludes items such as transmission, distribution, demand charges, taxes, hedging, and power purchase agreements.
 
-The Week 1 calculator accepts:
+All three regions currently share the same coarse eGRID emissions factor. Equal emissions estimates therefore **do not establish that local generation mixes are identical**.
 
-- IT load in MW
-- Expected PUE
-- Expected average utilization
+Electricity-price risk describes relative exposure to volatile or high prices in this dataset. It does **not** measure physical grid reliability or guarantee data-center uptime. The application does not yet assess individual parcels, interconnection capacity, water availability, or cooling-system design.
 
-It returns:
+## How the analysis works
 
-- Total facility load in MW
-- Annual electricity consumption in MWh
-- Annual electricity consumption in TWh
+Facility load equals IT load multiplied by PUE. Annual energy consumption also accounts for average utilization and 8,760 hours per year.
 
-## Regional comparison
+The application analyzes hourly electricity prices using statistics including standard deviation, 95th- and 99th-percentile prices, negative-price hours, and hours above high-price thresholds. Its composite price-risk score uses:
 
-The interactive command-line application compares North Texas,
-Houston, and West Texas using:
+- Price standard deviation: 35%.
+- 95th-percentile price: 35%.
+- Hours above $100/MWh: 20%.
+- Hours above $500/MWh: 10%.
 
-- 2025 ERCOT Day-Ahead Market load-zone prices
-- 2023 EPA eGRID ERCT emissions intensity
-- User-provided IT load
-- User-provided PUE
-- User-provided average utilization
-
-
-## Current limitations
-
-- Wholesale day-ahead market prices are not the same as the final electricity
-  price paid by a data center. The current results exclude transmission,
-  distribution, demand charges, taxes, hedging, and power purchase agreements.
-- All three candidate regions currently use the same EPA eGRID ERCT emissions
-  factor. Therefore, the baseline model does not yet capture hourly or
-  location-specific differences in grid carbon intensity.
-- The model currently compares broad Texas regions rather than individual
-  parcels, substations, utilities, or transmission interconnection points.
-- Reliability, water availability, cooling demand, and transmission capacity
-  will be added in later development stages.
-
-## Initial regional scoring model
-
-The first scoring model ranks candidate regions using three measurable
-components:
-
-- Annual wholesale electricity cost: 70%
-- Annual grid emissions: 20%
-- Maximum observed day-ahead electricity price: 10%
-
-Each metric is normalized to a score from 0 to 100, where a higher score is
-better. The weighted component scores produce the overall regional score.
-
-The maximum electricity price is currently used only as a preliminary indicator
-of exposure to extreme price events. It is not a complete measurement of grid
-reliability.
-
-Because all three regions currently use the same EPA eGRID ERCT emissions
-factor, their carbon scores are equal. More granular carbon data will be added
-in a later version.
-
+Scores are relative to the candidate regions: **higher price-risk scores mean better relative price stability**, not zero volatility.
 
 ### Preference scenarios
 
-The model supports multiple decision-maker preference profiles:
-
 | Scenario | Cost | Carbon | Price risk |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | Cost-focused | 85% | 5% | 10% |
 | Balanced | 50% | 20% | 30% |
 | Carbon-focused | 30% | 60% | 10% |
 
-Each scenario independently recalculates the overall scores and regional
-rankings. This allows the analysis to show whether a recommendation is robust
-or sensitive to the user's priorities.
+The selected weights determine the overall ranking. Because the current emissions factor is shared across the three regions, the carbon-focused scenario cannot meaningfully distinguish their local emissions.
 
-The current carbon-focused results are limited because all candidate regions
-use the same annual EPA eGRID emissions factor. More granular carbon data is
-required before the carbon-focused scenario can meaningfully distinguish the
-three regions.
+## Set up the project locally
 
+From the project directory, create and activate a virtual environment, then install the dependencies:
 
-## Running a custom recommendation
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
-The command-line interface accepts user-defined data-center requirements and
-a decision preference scenario.
+The processed regional metrics CSV and SQL schema are tracked in Git. Build the local SQLite database before starting the API:
 
-Example:
+```bash
+python -m scripts.build_database
+```
+
+This reads `data/processed/regional_metrics.csv`, applies `database/schema.sql`, and creates `data/processed/energy_intelligence.db`. The SQLite database itself is not committed to Git.
+
+Run the automated tests:
+
+```bash
+python -m pytest
+```
+
+Automated tests use simulated LLM clients where needed; they do not require Ollama to be running.
+
+## Run the API and browser interface
+
+Start the FastAPI server:
+
+```bash
+python -m uvicorn src.energy_agent.api:app --reload
+```
+
+With the server running, open:
+
+- Browser interface: [http://127.0.0.1:8000/app](http://127.0.0.1:8000/app)
+- Interactive API documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+The deterministic recommendation endpoint does not require an LLM. For example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/recommendations \
+  -H "Content-Type: application/json" \
+  -d '{"it_load_mw":200,"pue":1.25,"utilization":0.95,"scenario":"balanced"}'
+```
+
+The natural-language `/agent/query` endpoint and the browser's agent request require access to the configured LLM.
+
+### API endpoints
+
+- `GET /health` — check API health.
+- `GET /regions` — list supported regions.
+- `GET /regions/{region}` — retrieve a regional energy profile.
+- `GET /regions/{region}/price` — retrieve electricity-price statistics.
+- `POST /recommendations` — run a deterministic regional comparison.
+- `POST /agent/query` — interpret a natural-language request and return a tool-grounded answer.
+
+Request and response models are defined with Pydantic and documented in the generated OpenAPI specification at `/docs`.
+
+## Local LLM configuration
+
+Local development uses Ollama through an OpenAI-compatible Python client. To use the `qwen3:8b` model, install and start Ollama, then run:
+
+```bash
+ollama pull qwen3:8b
+export LLM_MODEL=qwen3:8b
+```
+
+The `export` applies to the current Terminal session. Set it again in a new Terminal session unless you configure it persistently. The LLM client also accepts `LLM_BASE_URL` and `LLM_API_KEY` environment variables for a compatible hosted provider.
+
+To check the model selected by the application:
+
+```bash
+python -c "from src.energy_agent.llm_client import load_llm_settings; print(load_llm_settings().model)"
+```
+
+Run the command-line demonstrations:
+
+```bash
+python -m scripts.demo_llm
+python -m scripts.demo_agent
+```
+
+Local Ollama runs on your computer. A publicly deployed version would need its own accessible LLM service; changing the client configuration alone does not make your Mac-hosted model publicly available.
+
+## Grounded agent responses
+
+The LLM interprets natural-language requests and can select approved energy-analysis tools. Python executes those tools; the LLM does not receive direct SQLite access.
+
+For regional comparisons, the API's published `answer` is assembled from structured tool results. `answer_source: "tool_summary"` identifies that published answer, and `grounded: true` refers to the published tool-built response.
+
+The separate `model_draft` field contains the LLM's original wording for inspection and is **not fully verified**. `grounding_checks` are basic presence checks on that draft; they do not certify every statement it makes. A check can be `false` while the separately assembled published answer remains grounded.
+
+The browser interface displays decision figures and rationale from structured results. It labels the original model wording as unverified.
+
+## Other command-line workflows
+
+Run a custom recommendation:
 
 ```bash
 python -m scripts.recommend_sites \
@@ -123,199 +159,40 @@ python -m scripts.recommend_sites \
   --pue 1.25 \
   --utilization 0.95 \
   --scenario balanced
+```
 
-### Electricity price-risk metrics
-
-The project analyzes all hourly ERCOT day-ahead prices for each candidate
-load zone rather than relying only on annual averages. The risk analysis
-calculates:
-
-- Price standard deviation
-- 95th-percentile price
-- 99th-percentile price
-- Number of negative-price hours
-- Number of hours above $100/MWh
-- Number of extreme hours above $500/MWh
-
-These statistics measure electricity-price volatility and exposure to
-high-price events. They should not be interpreted as complete measures of
-physical grid reliability or data-center uptime.
-
-
-
-### Composite price-risk score
-
-Price risk is evaluated using multiple statistics calculated from 8,760
-hourly ERCOT day-ahead prices:
-
-- Price standard deviation: 35%
-- 95th-percentile price: 35%
-- Hours above $100/MWh: 20%
-- Hours above $500/MWh: 10%
-
-Each component is normalized across the candidate regions, where higher
-scores indicate lower price risk. The weighted components produce a
-composite price-risk score from 0 to 100.
-
-Negative-price hours and 99th-percentile prices are retained for analysis,
-but they are not currently included in the composite score. Negative prices
-can represent economic opportunity as well as congestion or market
-imbalance, so they should not automatically be treated as beneficial or
-harmful.
-
-### Automated data-quality validation
-
-Before regional data is used by the recommendation model, automated checks
-verify:
-
-- Required columns and values are present
-- Region and settlement-point identifiers are unique
-- Each region contains exactly 8,760 hourly price observations
-- Price percentiles are logically ordered
-- Volatility and emissions values are nonnegative
-- Price-event counts do not exceed total observations
-
-The validation process produces a machine-readable JSON quality report.
-Invalid data raises an error before it can affect downstream recommendations.
-
-## Running the complete pipeline
-
-The full analytical workflow can be regenerated with one command:
-
-```bash
-python -m scripts.run_full_pipeline
-
-## SQL database
-
-Processed regional information is stored in a normalized SQLite database.
-
-The database currently contains:
-
-- `regions`: regional identifiers, ERCOT load zones, eGRID subregions,
-  and NOAA station mappings
-- `regional_metrics`: yearly electricity-price, emissions, and
-  price-risk measurements
-
-The schema uses primary keys, foreign keys, uniqueness constraints,
-indexes, and idempotent upserts. The database can be rebuilt with:
-
-```bash
-python -m scripts.build_database
-
-## SQL data-access layer
-
-The application includes reusable, parameterized SQL query functions for:
-
-- Listing available regions
-- Retrieving the latest metrics for one region
-- Comparing current metrics across all regions
-
-Example commands:
+Query the SQLite database:
 
 ```bash
 python -m scripts.query_database --list-regions
 python -m scripts.query_database --region "Houston"
 python -m scripts.query_database --compare-all
+```
 
-## AI-ready deterministic tools
-
-The application exposes tested, JSON-compatible Python functions for:
-
-- Listing supported regions
-- Retrieving electricity-price metrics
-- Retrieving a complete regional energy profile
-- Estimating facility power and annual energy requirements
-- Comparing and ranking regional energy options
-
-These tools use validated calculations and parameterized SQL queries. They
-will serve as the controlled interface between the future LLM agent and the
-underlying data.
-
-The LLM will be responsible for selecting tools and explaining results, while
-the deterministic Python and SQL layers remain responsible for numerical
-calculations and factual data retrieval.
-
-## FastAPI backend
-
-The project exposes its validated SQL-backed analytical tools through a
-FastAPI service.
-
-Available endpoints:
-
-- `GET /health`
-- `GET /regions`
-- `GET /regions/{region}`
-- `GET /regions/{region}/price`
-- `POST /recommendations`
-
-Start the local API:
+Rebuild the database from the processed CSV:
 
 ```bash
-python -m uvicorn src.energy_agent.api:app --reload
+python -m scripts.build_database
+```
 
-### Typed API contracts
-
-The API uses Pydantic request and response models to define explicit data
-contracts. FastAPI uses these models to validate responses and generate an
-OpenAPI specification with documented fields, types, examples, and expected
-error codes.
-
-This provides a consistent interface for the future web application and LLM
-workflow while preventing undocumented or malformed response structures from
-silently reaching API consumers.
-
-## Local LLM integration
-
-The application includes a provider-configurable LLM client built with
-the OpenAI-compatible Python interface.
-
-Local development uses Ollama with the `qwen3:4b` model:
+Regenerate the complete analytical pipeline:
 
 ```bash
-ollama pull qwen3:4b
-python -m scripts.demo_llm
+python -m scripts.run_full_pipeline
+```
 
-## Grounded agent responses
+The full pipeline may require the original source datasets. See `docs/data_sources.md` for source-data information; a fresh clone can build the API's database directly from the tracked processed CSV without rerunning the full pipeline.
 
-The agent uses an LLM to interpret a natural-language request and select
-approved energy-analysis tools. For regional comparisons, the public `answer`
-is assembled from structured tool results rather than the model's prose.
+## Data quality and project structure
 
-`answer_source: "tool_summary"` identifies that published answer.
-`grounded: true` describes the published, tool-built answer. The separate
-`model_draft` contains the LLM's original wording for inspection; it is not
-fully verified. `grounding_checks` report four basic presence checks on that
-draft and do not certify every claim it makes.
+Automated validation checks required values, region identifiers, hourly price-observation counts, price-percentile ordering, and nonnegative volatility and emissions values. Invalid inputs should fail before reaching downstream recommendations.
 
-The browser interface displays a decision rationale from structured results
-and labels the original model wording as unverified.
+Key project locations:
 
-Run the API locally:
-
-```bash
-python -m uvicorn src.energy_agent.api:app --reload
-
-## Browser interface
-
-Open `http://127.0.0.1:8000/app` while the FastAPI server is running
-to use the browser interface. Submit a natural-language data-center
-request to view the recommended region, facility load, annual energy,
-cost, emissions, regional comparison, and data limitations.
-
-The page calls the existing `POST /agent/query` endpoint. Its main
-decision rationale is assembled from structured tool results; the
-model's original wording is available separately for inspection.
-`/docs` remains the interactive API documentation.
-
-### Run the application:
-
-```bash
-python main.py
-## Run the project
-
-To create and activate the virtual environment:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-###
+- `src/energy_agent/` — analysis, database access, tools, agent, grounding, and API code.
+- `scripts/` — pipeline, database-build, query, and demonstration commands.
+- `data/processed/regional_metrics.csv` — tracked processed regional data.
+- `database/schema.sql` — tracked SQLite schema.
+- `tests/` — automated tests.
+- `web/` — browser interface.
+- `docs/` — supporting project and data-source documentation.
