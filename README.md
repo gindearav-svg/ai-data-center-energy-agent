@@ -292,6 +292,18 @@ Run the API locally:
 ```bash
 python -m uvicorn src.energy_agent.api:app --reload
 
+## Browser interface
+
+Open `http://127.0.0.1:8000/app` while the FastAPI server is running
+to use the browser interface. Submit a natural-language data-center
+request to view the recommended region, facility load, annual energy,
+cost, emissions, regional comparison, and data limitations.
+
+The page calls the existing `POST /agent/query` endpoint. Its main
+decision rationale is assembled from structured tool results; the
+model's original wording is available separately for inspection.
+`/docs` remains the interactive API documentation.
+
 ### Run the application:
 
 ```bash
