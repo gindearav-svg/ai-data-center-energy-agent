@@ -233,3 +233,9 @@ Key project locations:
 - `tests/` — automated tests.
 - `web/` — browser interface.
 - `docs/` — supporting project and data-source documentation.
+
+## Live demo
+
+Try the [public scenario explorer](https://ai-data-center-energy-agent.onrender.com/app).
+
+The public demo compares Texas regions using database-backed calculations and does not require an AI model. The natural-language AI agent is available only in the local development version. Results are estimates based on 2025 wholesale electricity prices and a shared 2023 regional emissions factor; they are not site-specific electricity bills or reliability assessments.
