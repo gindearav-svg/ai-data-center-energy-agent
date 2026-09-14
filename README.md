@@ -149,6 +149,23 @@ The separate `model_draft` field contains the LLM's original wording for inspect
 
 The browser interface displays decision figures and rationale from structured results. It labels the original model wording as unverified.
 
+## Public demo mode
+
+The public demo runs the deterministic scenario explorer without requiring
+Ollama or a hosted LLM. Start it locally on a separate port with:
+
+```bash
+PORT=8001 ./.venv/bin/python -m scripts.start_public
+```
+
+The startup script rebuilds SQLite from the tracked processed CSV and SQL
+schema each time the service starts. In public-demo mode, the browser hides
+the AI form and `POST /agent/query` returns 503 without calling a model.
+The regular local application retains the AI workflow.
+
+This is a regional screening demo, not an assessment of individual sites,
+grid uptime, or final electricity bills.
+
 ### What changes across scenarios?
 
 | Scenario | Top-ranked region | Overall score | Second-ranked region |

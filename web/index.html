@@ -12,13 +12,14 @@
       <header>
         <p class="eyebrow">Texas regional analysis</p>
         <h1>AI Data Center Energy Intelligence</h1>
-        <p>
+        <p id="app-intro">
           Compare data-center energy options using project data and a
           grounded AI explanation.
         </p>
       </header>
 
-      <section class="panel" aria-labelledby="request-heading">
+      <section id="agent-panel" class="panel"
+               aria-labelledby="request-heading" hidden>
         <h2 id="request-heading">Describe your project</h2>
         <form id="query-form">
           <label for="message">Analysis request</label>
@@ -28,7 +29,6 @@
         <p id="status" role="status" aria-live="polite"></p>
       </section>
 
-      <!-- Independent form: visible before either comparison runs. -->
       <section class="panel" aria-labelledby="scenario-heading">
         <h2 id="scenario-heading">Explore decision scenarios</h2>
         <p>
@@ -93,8 +93,8 @@
         </div>
       </section>
 
-      <!-- The original AI result remains hidden until its form is submitted. -->
-      <section id="results" class="panel" aria-labelledby="results-heading" hidden>
+      <section id="results" class="panel"
+               aria-labelledby="results-heading" hidden>
         <h2 id="results-heading">Recommendation</h2>
 
         <div class="metrics">

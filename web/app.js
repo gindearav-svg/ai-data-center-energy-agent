@@ -8,6 +8,34 @@ const scenarioButton = document.querySelector("#scenario-button");
 const scenarioStatus = document.querySelector("#scenario-status");
 const scenarioResults = document.querySelector("#scenario-results");
 
+async function configureAgentAvailability() {
+  const agentPanel = document.querySelector("#agent-panel");
+
+  try {
+    const response = await fetch("/app-config");
+
+    if (!response.ok) {
+      throw new Error("Could not check agent availability.");
+    }
+
+    const config = await response.json();
+    agentPanel.hidden = !config.agent_enabled;
+
+    if (!config.agent_enabled) {
+      document.querySelector("#app-intro").textContent =
+        "Compare Texas data-center energy options using transparent, " +
+        "database-backed calculations. The AI agent is available in " +
+        "the local development version.";
+      results.hidden = true;
+    }
+  } catch (error) {
+    // If configuration cannot be checked, leave the AI form hidden.
+    agentPanel.hidden = true;
+  }
+}
+
+configureAgentAvailability();
+
 const number = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
@@ -92,7 +120,7 @@ function displayResults(data) {
     } / 100. ${tradeoff} These stability scores compare the listed regions; they do not measure absolute volatility.`
   );
 
-  // Model-generated wording is displayed as text, never interpreted as HTML.
+  // Display model-generated wording as text, never as HTML.
   setText("#raw-answer", data.model_draft ?? "");
   setText(
     "#answer-source",
@@ -214,7 +242,6 @@ function displayScenarioResults(data) {
   scenarioResults.hidden = false;
 }
 
-// These are two separate listeners. Neither is nested inside the other.
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 

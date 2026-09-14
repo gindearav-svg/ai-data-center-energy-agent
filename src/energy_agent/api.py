@@ -1,10 +1,12 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-
+from src.energy_agent.agent import AgentError
+from src.energy_agent.grounding import GroundingError
 from src.energy_agent.schemas import (
     AgentQueryRequest,
     AgentQueryResponse,
@@ -16,16 +18,12 @@ from src.energy_agent.schemas import (
     RegionsResponse,
     RootResponse,
 )
+from src.energy_agent.service import run_grounded_comparison_agent
 from src.energy_agent.tools import (
     compare_energy_options,
     get_available_regions,
     get_electricity_price,
     get_region_energy_profile,
-)
-from src.energy_agent.agent import AgentError
-from src.energy_agent.grounding import GroundingError
-from src.energy_agent.service import (
-    run_grounded_comparison_agent,
 )
 
 
@@ -38,6 +36,17 @@ DATABASE_PATH = (
     / "energy_intelligence.db"
 )
 
+WEB_DIR = PROJECT_ROOT / "web"
+
+
+def agent_enabled() -> bool:
+    """Keep the local agent off in the public, deterministic demo."""
+    return os.getenv("PUBLIC_DEMO", "").strip().lower() not in {
+        "1",
+        "true",
+        "yes",
+    }
+
 
 app = FastAPI(
     title="AI Data Center Energy Intelligence API",
@@ -47,7 +56,6 @@ app = FastAPI(
     ),
     version="0.3.0",
 )
-WEB_DIR = PROJECT_ROOT / "web"
 
 app.mount(
     "/static",
@@ -59,6 +67,11 @@ app.mount(
 @app.get("/app", include_in_schema=False)
 def browser_app() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
+
+
+@app.get("/app-config", include_in_schema=False)
+def app_config() -> dict[str, bool]:
+    return {"agent_enabled": agent_enabled()}
 
 
 @app.get(
@@ -203,7 +216,8 @@ def create_recommendation(
             status_code=503,
             detail=str(error),
         ) from error
-    
+
+
 @app.post(
     "/agent/query",
     response_model=AgentQueryResponse,
@@ -214,8 +228,8 @@ def create_recommendation(
         },
         503: {
             "description": (
-                "The language model, grounding layer, "
-                "or energy data is unavailable."
+                "The agent is disabled, or the language model, "
+                "grounding layer, or energy data is unavailable."
             ),
         },
     },
@@ -223,6 +237,12 @@ def create_recommendation(
 def query_energy_agent(
     request: AgentQueryRequest,
 ) -> dict:
+    if not agent_enabled():
+        raise HTTPException(
+            status_code=503,
+            detail="The AI agent is unavailable in the public demo.",
+        )
+
     if not request.message.strip():
         raise HTTPException(
             status_code=422,
